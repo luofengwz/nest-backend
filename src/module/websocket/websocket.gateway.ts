@@ -85,16 +85,16 @@ export class NestWebSocketGateway implements OnGatewayInit, OnGatewayConnection,
         ws.timeout(5000).emit('singleChatMessage', data, (err, response) => {
           if (err) {
             console.log(err)
-            this.saveMessageQueque(res.result)
+            this.saveMessageQueque(res.data)
           } else {
-            let item = res.result
+            let item = res.data
             item.isRead = 1 //消息已读
             console.log('消息：',item)
             this.chatMsgService.setReadMsg(item)
           }
         })
       } else {
-        this.saveMessageQueque(res.result)
+        this.saveMessageQueque(res.data)
       }
     })
     return data

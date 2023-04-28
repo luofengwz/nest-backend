@@ -14,14 +14,17 @@ import { TransformInterceptor } from './common/libs/log4js/transform.interceptor
 import { HttpExceptionsFilter } from './common/libs/log4js/http-exceptions-filter'
 import { ExceptionsFilter } from './common/libs/log4js/exceptions-filter'
 
+import {NestExpressApplication} from '@nestjs/platform-express'
 // import { WsAdapter } from './module/websocket/websocket.adpater';
 // import { WsAdapter } from '@nestjs/platform-ws';
 import { IoAdapter } from '@nestjs/platform-socket.io'
 
 import Chalk from 'chalk'
+import { getLocalIp } from './common/utils/utils'
+import { join } from 'path'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true,
   })
   // app.useGlobalGuards(new RoleGuard())
@@ -56,6 +59,11 @@ async function bootstrap() {
     customSiteTitle: 'Nest API Docs',
   })
 
+  // 上传文件静态目录
+  app.useStaticAssets(join(__dirname, 'upload'),{
+    prefix: config.get('app.file.serveRoot')
+ })
+
   // 日志
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
@@ -70,12 +78,14 @@ async function bootstrap() {
   const port = config.get<number>('app.port') || 8080
 
   await app.listen(port)
+
+  const lIp = getLocalIp()
   Logger.log(
     Chalk.green(`Nest 服务启动成功 `),
-    `http://localhost:${port}${prefix}/`,
+    `http://${lIp}:${port}${prefix}/`,
     '\n',
     Chalk.green('swagger 文档地址 '),
-    `http://localhost:${port}${prefix}/api-docs/`,
+    `http://${lIp}:${port}${prefix}/api-docs/`,
   )
   Logger.log(Chalk.green('websocket 服务启动成功'), 'ws://localhost:8002/')
 }
