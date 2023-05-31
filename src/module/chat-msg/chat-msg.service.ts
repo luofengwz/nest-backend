@@ -14,7 +14,6 @@ export class ChatMsgService {
     private dataSource: DataSource,
   ) {}
 
-
   async getMsgByUserId(userId: number) {
     const list = await this.chatMsgRepo.find({ where: { userId } })
     return ResultData.ok(list)
@@ -42,9 +41,10 @@ export class ChatMsgService {
 
   // 获取用户最新一条消息
   async getLastMsgByUserId(userId: number) {
-    const result = await this.dataSource
-      .createQueryRunner()
-      .query(`select id,content,create_date from chat_msg where receive_id = ${userId} order by id desc limit 0,1`)
+    const queryRunner = this.dataSource.createQueryRunner()
+    const result = await 
+    queryRunner.query(`select id,content,create_date from chat_msg where receive_id = ${userId} order by id desc limit 0,1`)
+    await queryRunner.release()  //释放连接
     // const result = await this.chatMsgRepo.findBy({ userId })
     return ResultData.ok(result)
   }
@@ -52,7 +52,10 @@ export class ChatMsgService {
   // 获取消息列表
   async getMessageList({ page, size, userId, toUserId }) {
     //  select * from chat_msg where user_id=${userId} and receive_id=${toUserId} order by id desc limit ${(page - 1) * size},${size}
-    const result = await this.dataSource.createQueryRunner().query(` SELECT c.id, JSON_EXTRACT(c.content,'$') as content, 
+    try {
+      console.log('获取消息')
+      const queryRunner = this.dataSource.createQueryRunner()
+      const result = await queryRunner.query(` SELECT c.id, JSON_EXTRACT(c.content,'$') as content, 
       JSON_OBJECT('id', u1.id, 'avatar', u1.avatar, 'username', u1.username) AS user,
       JSON_OBJECT('id', u2.id, 'avatar', u2.avatar, 'username', u2.username) AS toUser
       FROM chat_msg c
@@ -62,9 +65,15 @@ export class ChatMsgService {
       OR (c.user_id = ${toUserId} AND c.receive_id = ${userId})
       ORDER BY c.id DESC
       LIMIT ${(page - 1) * size},${size};`)
-    if(result instanceof Array){
-      result.reverse()
+      await queryRunner.release()
+      if (result instanceof Array) {
+        result.reverse()
+      }
+    
+      return ResultData.ok(result)
+    } catch (err) {
+      console.log(err)
+      return ResultData.fail(err)
     }
-    return ResultData.ok(result)
   }
 }

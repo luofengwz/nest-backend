@@ -83,6 +83,7 @@ export class UserService {
     if (user.status === 0) return ResultData.fail(AppHttpCode.USER_ACCOUNT_FORBIDDEN, '您已被禁用，如需正常使用请联系管理员')
     // 生成 token
     const data = this.genToken({ id: user.id })
+    console.log('正常返回')
     return ResultData.ok(data)
   }
 
@@ -105,13 +106,15 @@ export class UserService {
   // ON `chat_msg`.user_id=`user`.id AND chat_msg.is_read=0 AND chat_msg.receive_id=1 GROUP BY `user`.id;
   async getUserList(userId: number) {
     const queryStr = `SELECT u.id,u.avatar,u.username,u.phone,x.un_read,
-    (SELECT JSON_EXTRACT(content,'$') FROM chat_msg c WHERE c.user_id=u.id OR c.receive_id=u.id  ORDER BY id DESC LIMIT 1) as content 
+    (SELECT JSON_EXTRACT(content,'$') FROM chat_msg c WHERE (u.id=c.user_id or u.id=c.receive_id) AND (${userId}=c.receive_id or ${userId}=c.user_id) ORDER BY id DESC LIMIT 1) as content 
     from user u left join
     (SELECT count(1) un_read, user_id from chat_msg where is_read=0 AND receive_id=${userId} GROUP BY user_id) x 
     ON u.id = x.user_id`
     // const queryStr = `select user.id,user.username,user.avatar,(SELECT content FROM chat_msg WHERE chat_msg.user_id=user.id AND chat_msg.receive_id=${userId} ORDER BY id DESC LIMIT 1) as content,count(*) as total from user LEFT JOIN chat_msg
     // ON chat_msg.user_id=user.id AND chat_msg.is_read=0 AND chat_msg.receive_id=${userId} GROUP BY chat_msg.user_id`
-    const list = await this.dataSource.createQueryRunner().query(queryStr)
+    const queryRunner = this.dataSource.createQueryRunner()
+    const list = await queryRunner.query(queryStr)
+    await queryRunner.release()
     return list
   }
 

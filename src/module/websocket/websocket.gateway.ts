@@ -23,7 +23,7 @@ import { message, msgContent } from './types/websocket'
  * 我们可以通过将参数传递给@WebSocketGateway(8080)装饰器来更改此行为，其中8080所选择的端口号。
  */
 @WebSocketGateway(8002, {
-  namespace: '/room',
+  // namespace: '/room',
   allowEIO3: true,
   cors: {
     origin: '*',

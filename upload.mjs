@@ -1,13 +1,27 @@
 'use strict'
 // 引入scp2
-import scpClient from 'scp2'
+import scp from 'scp2'
 import ora from 'ora'
 import chalk from 'chalk'
 import readline from 'readline'
 import ssh2 from 'ssh2'
+import path from 'path'
 const Client = ssh2.Client
 // 下面三个插件是部署的时候控制台美化所用 可有可无
 const spinner = ora(chalk.green('正在上传到到服务器...'))
+
+const service = {
+  host: '175.178.63.221', //服务器IP
+  port: 22, //服务器端口
+  username: 'root', // server.username, //服务器ssh登录用户名
+  password: 'zcx123A!', // server.password, //服务器ssh登录密码
+  path: '/www/wwwroot/nest-im/dist', //服务器web目录
+}
+let scpClient = scp
+scpClient.defaults({
+  ...service,
+  // ignore: ['node_modules','test'].map(dir=> new RegExp(`${dir}(/|$)`))
+})
 
 // 交互语句
 const rl = readline.createInterface({
@@ -38,13 +52,6 @@ let server = {}
 
 deployFile()
 function deployFile() {
-  const service = {
-    host: '175.178.63.221', //服务器IP
-    port: 22, //服务器端口
-    username: 'root', // server.username, //服务器ssh登录用户名
-    password: 'zcx123A!', // server.password, //服务器ssh登录密码
-    path: '/www/wwwroot/nest-im/dist', //服务器web目录
-  }
   var conn = new Client()
   conn
     .on('ready', async () => {
@@ -54,7 +61,9 @@ function deployFile() {
         await exec('pm2 list', conn,{cwd: '/www/wwwroot/nest-im'})
         conn.end()
         spinner.start()
-        await UploadedFile('./dist', scpClient, service)
+        // service.path = '/www/wwwroot/nest-im/dist'
+        await UploadedFile('./!(node_modules)/**', scpClient)
+        await UploadedFile('./*', scpClient)
         spinner.stop()
         log('项目上传完成')
       } catch (err) {
@@ -93,7 +102,7 @@ function exec(cmd, conn, options) {
   })
 }
 
-function UploadedFile(path, scpClient, service) {
+function UploadedFile(path, scpClient) {
   return new Promise((resolve, reject) => {
     scpClient.scp(path, service, (err) => {
       if (err) {
