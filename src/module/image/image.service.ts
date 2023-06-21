@@ -18,12 +18,17 @@ export class ImageService {
   }
 
   async getList(query) {
-    const res = await this.imageRepo
-      .createQueryBuilder()
+    const createQueryBuilder = this.imageRepo.createQueryBuilder()
+    let builder = createQueryBuilder.where('disabled = :disabled', { disabled: 0 })
+    if (query.key) {
+      builder.andWhere('description LIKE :description', { description: `%${query.key}%` })
+    }
+    const res = await builder
       .skip((query.page - 1) * query.size)
       .take(query.size)
+      .addOrderBy('update_date', query.order || 'DESC')
       .getMany()
-    console.log(res)
+
     return ResultData.ok(res)
   }
 

@@ -15,27 +15,8 @@ export class ImageController {
   }
   
   @Get('/getList')
-  getList(@Query() query: { page: number; size: number; type: number}) {
+  getList(@Query() query: { page: number; size: number; type: number, order: String, key: String}) {
     return this.imageService.getList(query);
   }
 
-  @Get()
-  findAll() {
-    return this.imageService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.imageService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateImageDto: UpdateImageDto) {
-    return this.imageService.update(+id, updateImageDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.imageService.remove(+id);
-  }
 }

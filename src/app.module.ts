@@ -14,6 +14,7 @@ import { WebSocketModule } from './module/websocket/websocket.module'
 import { ChatMsgModule } from './module/chat-msg/chat-msg.module';
 import { ImageModule } from './module/image/image.module';
 import { UploadModule } from './module/upload/upload.module';
+import { ImageCategoryModule } from './module/image-category/image-category.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { UploadModule } from './module/upload/upload.module';
     WebSocketModule,
     ImageModule,
     UploadModule,
+    ImageCategoryModule,
   ],
   controllers: [],
   providers: [

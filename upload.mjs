@@ -58,12 +58,16 @@ function deployFile() {
       try {
         // 删除上个版本的文件
         await exec('rm -rf /www/wwwroot/nest-im/*', conn, {})
-        await exec('pm2 list', conn,{cwd: '/www/wwwroot/nest-im'})
-        conn.end()
+        await exec('pm2 list', conn, { cwd: '/www/wwwroot/nest-im' })
         spinner.start()
         // service.path = '/www/wwwroot/nest-im/dist'
         await UploadedFile('./!(node_modules)/**', scpClient)
         await UploadedFile('./*', scpClient)
+
+        await exec('pm2 stop 3', conn, { cwd: '/www/wwwroot/nest-im' })
+        await exec('cd /www/wwwroot/nest-im && pnpm i && pnpm run dist', conn, {})
+        await exec('cd /www/wwwroot/nest-im && chmod -R 755 ./', conn, {})
+        conn.end()
         spinner.stop()
         log('项目上传完成')
       } catch (err) {
@@ -78,7 +82,7 @@ function deployFile() {
     .connect(service)
 }
 
-function exec(cmd, conn, options) {
+function exec(cmd, conn, options = {}) {
   console.log(chalk.green(`执行命令： ${cmd}`))
   return new Promise((resolve, reject) => {
     conn.exec(cmd, options, (err, stream) => {

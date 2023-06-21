@@ -32,6 +32,18 @@ export class ImageEntity {
   @ApiProperty({ type: String, description: '用户名' })
   @Column({ type: 'varchar',length: 100, comment: '图片描述' })
   public description: string;
+  
+  
+  @ApiProperty({
+    type: Number,
+    description: '图片分类ID'
+  })
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: '图片分类ID',
+  })
+  public imageCategoryId: Number;
 
   @ApiProperty({
     type: Number,
@@ -43,6 +55,17 @@ export class ImageEntity {
     comment: '图片分类',
   })
   public type: Number;
+
+  @ApiProperty({
+    type: Number,
+    description: '是否禁用'
+  })
+  @Column({
+    type: 'tinyint',
+    default: 0,
+    comment: '是否禁用',
+  })
+  public disabled: Number;
 
   @ApiProperty({ type: Date, description: '创建时间' })
   @CreateDateColumn({
