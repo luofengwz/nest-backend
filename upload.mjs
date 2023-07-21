@@ -69,6 +69,7 @@ function deployFile() {
         await exec('cd /www/wwwroot/nest-im && chmod -R 755 ./', conn, {})
         conn.end()
         spinner.stop()
+        conn.destroy()
         log('项目上传完成')
       } catch (err) {
         log('发布失败', 'red')

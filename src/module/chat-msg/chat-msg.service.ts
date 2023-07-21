@@ -76,4 +76,25 @@ export class ChatMsgService {
       return ResultData.fail(err)
     }
   }
+
+    // 获取消息列表
+    async getRoomMessageList({ page, size, roomId }) {
+      //  select * from chat_msg where user_id=${userId} and receive_id=${toUserId} order by id desc limit ${(page - 1) * size},${size}
+      try {
+        console.log('获取消息')
+        const queryRunner = this.dataSource.createQueryRunner()
+        const result = await queryRunner.query(` SELECT c.id, JSON_EXTRACT(c.content,'$') as content, 
+        JSON_OBJECT('id', u1.id, 'avatar', u1.avatar, 'username', u1.username) AS user
+        FROM chat_msg c
+        JOIN user u1 ON c.user_id = u1.id
+        WHERE room_id = ${roomId}
+        ORDER BY c.id DESC
+        LIMIT ${(page - 1) * size},${size};`)
+        await queryRunner.release()  
+        return ResultData.ok(result)
+      } catch (err) {
+        console.log(err)
+        return ResultData.fail(err)
+      }
+    }
 }

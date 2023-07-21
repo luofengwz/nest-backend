@@ -8,12 +8,16 @@ export class ChatMsgEntity {
   public id: number
 
   @ApiProperty({ type: Number, description: '用户id' })
-  @Column({ type: 'bigint', name: 'user_id', comment: '用户id' })
+  @Column({ type: 'bigint', name: 'user_id', comment: '用户id',default: 0 })
   public userId: number
 
   @ApiProperty({ type: Number, description: '接收消息的用户id' })
-  @Column({ type: 'bigint', name: 'receive_id', comment: '接收消息的用户id' })
+  @Column({ type: 'bigint', name: 'receive_id', comment: '接收消息的用户id',default: 0 })
   public receiveId: number
+
+  @ApiProperty({ type: Number, description: '房间id' })
+  @Column({ type: 'bigint', name: 'room_id', comment: '房间id',default: 0 })
+  public roomId: number
 
   @ApiProperty({ type: String, description: '消息内容' })
   @Column({

@@ -32,9 +32,8 @@ export class UploadService {
     writeImage.write(file.buffer)
 
     // 4.返回图片保存的地址
-    let saveDir = join(this.config.get('app.file.location'), day, filename)
-    console.log('返回图片保存的地址: ', saveDir) // upload/20210410/1618041629839.png
-    return {filename,day, saveDir}
+    // let saveDir = join(this.config.get('app.file.location'), day, filename)
+    return {filename,day}
   }
 
 

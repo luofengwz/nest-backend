@@ -10,7 +10,7 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
 
-  async validateUser(payload: { id: string }): Promise<UserEntity> {
+  async validateUser(payload: { id: number }): Promise<UserEntity> {
     return await this.userService.findOneById(payload.id)
   }
 }

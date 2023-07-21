@@ -118,12 +118,12 @@ export class UserService {
     return list
   }
 
-  async findOne(id: string): Promise<ResultData> {
-    let user = await this.findOneById(id)
+  async findOne(id: number): Promise<ResultData> {
+    let user: UserEntity = await this.findOneById(id)
     return ResultData.ok(user)
   }
 
-  async findOneById(id: string): Promise<UserEntity> {
+  async findOneById(id: number): Promise<UserEntity> {
     const redisKey = getRedisKey(RedisKeyPrefix.USER_INFO, id)
     const result = await this.redisService.hGetAll(redisKey)
     // plainToInstance 去除 password slat
@@ -139,9 +139,19 @@ export class UserService {
     user.salt = ''
     return user
   }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`
+  
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    let user = await this.userRepo.findOneBy({id});
+    user = {
+      ...user,
+      ...updateUserDto
+    }
+    const data = await this.userRepo.save(user)
+    if(data){
+      return ResultData.ok(null)
+    }else{
+      return ResultData.fail(1, '更新失败')
+    }
   }
 
   remove(id: number) {
@@ -173,7 +183,7 @@ export class UserService {
   }
 
   /** 校验 token */
-  verifyToken(token: string): string {
+  verifyToken(token: string): number {
     try {
       if (!token) return null
       const verInfo = this.jwtService.verify(token.replace('Bearer ', ''))

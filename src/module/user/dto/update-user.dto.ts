@@ -1,4 +1,11 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateUserDto } from './create-user.dto';
+import { StatusValue, UserType } from "src/common/enums/common.enum"
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
+export class UpdateUserDto {
+  avatar: string
+  username: string
+  phone: string
+  email: string
+  status: StatusValue
+  type: UserType
+
+}

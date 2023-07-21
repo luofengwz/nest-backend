@@ -4,11 +4,12 @@ export class CreateChatMsgDto {
   isRead: number //是否已读
   success: number //是否发送成功
   content: string //发送内容
+  user?: object
 }
 
 // 消息内容
 export interface msgContent {
-  text: string; //文字消息
-  images?: []; //图片
-  annex?: []; //附件
+  text: string //文字消息
+  images?: [] //图片
+  annex?: [] //附件
 }

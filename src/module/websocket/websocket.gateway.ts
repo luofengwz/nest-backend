@@ -68,7 +68,7 @@ export class NestWebSocketGateway implements OnGatewayInit, OnGatewayConnection,
       })
       // 消息已读
       const r = this.chatMsgService.readAllMsg(data.userId)
-      console.log('1111111',r)
+      console.log('1111111', r)
       this.messageQuqu[data.userId] = []
     }
     return { data, ws: this.wsClients.entries() }
@@ -78,7 +78,7 @@ export class NestWebSocketGateway implements OnGatewayInit, OnGatewayConnection,
   handleSingleChatMessage(client: Socket, data) {
     data.success = 1 //消息发送成功
     // 存数据库
-    this.saveToTable(data).then(res=>{
+    this.saveToTable(data).then((res) => {
       if (this.wsClients.has(data.toUser.id)) {
         let ws = this.wsClients.get(data.toUser.id)
         console.log(this.wsClients)
@@ -89,7 +89,7 @@ export class NestWebSocketGateway implements OnGatewayInit, OnGatewayConnection,
           } else {
             let item = res.data
             item.isRead = 1 //消息已读
-            console.log('消息：',item)
+            console.log('消息：', item)
             this.chatMsgService.setReadMsg(item)
           }
         })
@@ -142,20 +142,26 @@ export class NestWebSocketGateway implements OnGatewayInit, OnGatewayConnection,
     })
   }
 
-  // // 加入房间
-  // @SubscribeMessage('joinRoom')
-  // handleJoinRoom(client: Socket, payload) {
-  //   console.log(payload)
-  //   client.join(payload.roomId)
-  //   client.emit('joinRoom', payload.roomId)
-  //   return payload.roomId
-  // }
+  // 加入房间
+  @SubscribeMessage('joinRoom')
+  handleJoinRoom(client: Socket, payload) {
+    console.log(payload)
+    client.join(payload.roomId)
+    client.emit('joinRoom', payload.roomId)
+    return payload.roomId
+  }
 
-  // // 离开房间
-  // @SubscribeMessage('leaveRoom')
-  // handleLeaveRoom(client: Socket, payload) {
-  //   client.leave(payload.roomId)
-  //   client.emit('leaveRoom', payload.roomId)
-  //   return payload.roomId
-  // }
+  // 离开房间
+  @SubscribeMessage('leaveRoom')
+  handleLeaveRoom(client: Socket, payload) {
+    client.leave(payload.roomId)
+    client.emit('leaveRoom', payload.roomId)
+    return payload.roomId
+  }
+
+  // 给房间用户推送消息
+  handleEmitRoomMessage(data) {
+    console.log('推送事件')
+    this.server.emit('roomMessage', data)
+  }
 }

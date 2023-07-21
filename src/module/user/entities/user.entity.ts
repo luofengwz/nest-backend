@@ -8,7 +8,7 @@ import { UserType, StatusValue } from '../../../common/enums/common.enum'
 export class UserEntity {
   @ApiProperty({ type: String, description: 'id' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  public id: string;
+  public id: number;
 
   @Exclude({ toPlainOnly: true }) // 输出屏蔽密码
   @Column({
